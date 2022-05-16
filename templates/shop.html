@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}
+商家列表
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/css/shop.css">
+<script>
+    function httpPost(URL, PARAMS) {
+         var temp = document.createElement("form");
+         temp.action = URL;
+         temp.method = "post";
+         temp.style.display = "none";
+
+         for (var x in PARAMS) {
+          var opt = document.createElement("textarea");
+          opt.name = x;
+          opt.value = PARAMS[x];
+          temp.appendChild(opt);
+         }
+
+         document.body.appendChild(temp);
+         temp.submit();
+
+         return temp;
+        }
+        function private_send(obj){
+            console.log(obj)
+            var params = {
+          "user1": "{{ email|safe }}",
+          "user2": obj,
+         };
+            httpPost("/chatroom/private", params);
+        }
+    function search_tags(obj) {
+        var ans = obj.value;
+        window.location.href = ('/search_ans/'+ans+"/2");
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="formula_content">
+    <div class="page-header" id="page_header">
+        <h1>商家列表</h1>
+    </div>
+    <div class="issue_list_div">
+        {% if ifsearch %}
+            <div style="font-size: large">查询:{{ifsearch}}</div>
+        {% endif %}
+        <ul class="issue_list_ul">
+            {% for j in range(issue_information|length) %}
+                <li class="issue_list_li">
+                    <img src="{{ issue_information[j][3] }}" width="200" height="200" style="float:left" >
+                    <div class="issue_div">
+                        <div class="issue_content">
+                            <h1>
+                                {% if type != 0 and email %}
+                                <a href="{{ url_for('shop_detail',Ino = issue_information[j][4]) }}">
+                                    {{ issue_information[j][0] }}
+                                </a>
+                                {% elif email %}
+                                <a href="{{ url_for('order',Ino = issue_information[j][4]) }}">
+                                    {{ issue_information[j][0] }}
+                                </a>
+                                {% else %}
+                                <a href="{{ url_for('shop_detail',Ino = issue_information[j][4]) }}">
+                                    {{ issue_information[j][0] }}
+                                </a>
+                                {% endif %}
+                            <a style="float:right;" href="{{ url_for('show_issue',Ino = issue_information[j][4]) }}">
+                                    查看商家评论
+                            </a>
+                            {% if issue_information[j][4]!= email %}
+                            <button type="button" class="btn btn-default" onclick="private_send('{{ issue_information[j][4] }}')" style="float:right">联系商家</button>
+                            {% endif %}
+                            <a style="float:right;" href="{{ url_for('personal',Ino = issue_information[j][4]) }}">
+                                    <button type="button" class="btn btn-default">详情</button>
+                            </a>
+                            </h1>
+                            {% for t in range(tags[j]|length -1, -1, -1) %}
+                            <input type="button" style="float:right;" class="btn btn-default" value="{{tags[j][t][0]}}" onclick="search_tags(this)">
+                            {% endfor %}
+
+                            <br/>
+                            <br/>
+                            <page class="page1">
+                                {{ issue_information[j][2] }}
+                            </page>
+                            <br/>
+                            <br/>
+                            <page class="page1">
+                                {{ issue_information[j][1] }}
+                            </page>
+                            <div style="float:right;font-size: 20px;">销量:{{issue_information[j][5]}}</div>
+                            <br/>
+                        </div>
+                    </div>
+                </li>
+                <br/>
+                <br/>
+            <br/>
+            {% endfor %}
+        </ul>
+        <nav aria-label="Page navigation" class="pull-right">
+                    <ul class="pagination">
+                        {{ html|safe }}
+                    </ul>
+        </nav>
+    </div>
+</div>
+
+{% endblock %}
+{% block formula_class %}
+active
+{% endblock %}
